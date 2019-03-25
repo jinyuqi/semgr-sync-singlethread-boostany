@@ -22,7 +22,13 @@ public:
         auto cbWrapper = [func](shared_ptr<Msg> msg)
         {
             auto msgData = std::dynamic_pointer_cast<MsgData<T>>(msg);
-            func(msgData->m_data);
+            if (msgData != nullptr)
+            {
+                func(msgData->m_data);
+            } else
+            {
+                throw std::runtime_error("subscribe with template but throw is normal");
+            }
         };
         subscribe(id, cbWrapper);
     }
