@@ -12,6 +12,3 @@ set_property(TARGET GMock::Main APPEND PROPERTY INTERFACE_LINK_LIBRARIES GTest::
 add_executable(ut_semgr ut_semgr.cpp)
 target_link_libraries(ut_semgr GMock::Main semgr)
 
-add_executable(ft_semgr ft_semgr.cpp)
-target_link_libraries(ft_semgr semgr)
-

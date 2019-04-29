@@ -28,8 +28,8 @@ TEST(SEMGRTEST, subscribeAndPostWillDoSingleCallback)
     SEManager::clearAllSubscribe();
     MockTestMgr mgr(0), mgr2(1);
     EXPECT_CALL(mgr, subInitializeCallbak()).Times(1);
-    mgr.subscribe(MsgData::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
-    mgr2.postMsg(MsgData::Initialize);
+    mgr.subscribe(Event::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
+    mgr2.postMsg(Event::Initialize);
 }
 
 TEST(SEMGRTEST, subscribeTwiceAndPostWillDoOnceCallback)
@@ -37,9 +37,9 @@ TEST(SEMGRTEST, subscribeTwiceAndPostWillDoOnceCallback)
     SEManager::clearAllSubscribe();
     MockTestMgr mgr(0), mgr2(1);
     EXPECT_CALL(mgr, subInitializeCallbak()).Times(1);
-    mgr.subscribe(MsgData::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
-    mgr.subscribe(MsgData::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
-    mgr2.postMsg(MsgData::Initialize);
+    mgr.subscribe(Event::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
+    mgr.subscribe(Event::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
+    mgr2.postMsg(Event::Initialize);
 }
 
 TEST(SEMGRTEST, noSubscribeAndPostWillNoCallback)
@@ -47,7 +47,7 @@ TEST(SEMGRTEST, noSubscribeAndPostWillNoCallback)
     SEManager::clearAllSubscribe();
     MockTestMgr mgr(0), mgr2(1);
     EXPECT_CALL(mgr, subInitializeCallbak()).Times(0);
-    mgr2.postMsg(MsgData::Initialize);
+    mgr2.postMsg(Event::Initialize);
 }
 
 TEST(SEMGRTEST, eachSubscribeAndWillCallEachCallBack)
@@ -56,9 +56,9 @@ TEST(SEMGRTEST, eachSubscribeAndWillCallEachCallBack)
     MockTestMgr mgr(0), mgr2(1);
     EXPECT_CALL(mgr, subInitializeCallbak()).Times(1);
     EXPECT_CALL(mgr2, subInitializeCallbak()).Times(1);
-    mgr.subscribe(MsgData::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
-    mgr2.subscribe(MsgData::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr2));
-    mgr.postMsg(MsgData::Initialize);
+    mgr.subscribe(Event::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
+    mgr2.subscribe(Event::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr2));
+    mgr.postMsg(Event::Initialize);
 }
 
 TEST(SEMGRTEST, SubscribeAndNoSubscribeWithTwoMgrs)
@@ -67,8 +67,8 @@ TEST(SEMGRTEST, SubscribeAndNoSubscribeWithTwoMgrs)
     MockTestMgr mgr(0), mgr2(1);
     EXPECT_CALL(mgr, subInitializeCallbak()).Times(1);
     EXPECT_CALL(mgr2, subInitializeCallbak()).Times(0);
-    mgr.subscribe(MsgData::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
-    mgr.postMsg(MsgData::Initialize);
+    mgr.subscribe(Event::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
+    mgr.postMsg(Event::Initialize);
 }
 
 TEST(SEMGRTEST, SubscribeAndNoSubscribeWithOneMgrs)
@@ -76,9 +76,9 @@ TEST(SEMGRTEST, SubscribeAndNoSubscribeWithOneMgrs)
     SEManager::clearAllSubscribe();
     MockTestMgr mgr(0), mgr2(1);
     EXPECT_CALL(mgr, subInitializeCallbak()).Times(0);
-    mgr.subscribe(MsgData::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
-    mgr.unSubscribe(MsgData::Initialize);
-    mgr.postMsg(MsgData::Initialize);
+    mgr.subscribe(Event::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
+    mgr.unSubscribe(Event::Initialize);
+    mgr.postMsg(Event::Initialize);
 }
 
 TEST(SEMGRTEST, NoSubscribeWithOneMgrs)
@@ -86,39 +86,39 @@ TEST(SEMGRTEST, NoSubscribeWithOneMgrs)
     SEManager::clearAllSubscribe();
     MockTestMgr mgr(0), mgr2(1);
     EXPECT_CALL(mgr, subInitializeCallbak()).Times(0);
-    mgr.unSubscribe(MsgData::Initialize);
-    mgr.postMsg(MsgData::Initialize);
+    mgr.unSubscribe(Event::Initialize);
+    mgr.postMsg(Event::Initialize);
 }
 
 TEST(SEMGRTEST, ThreeManagersWithSubscribe)
 {
     SEManager::clearAllSubscribe();
     MockTestMgr mgr(0), mgr2(1), mgr3(2);
-    mgr.subscribe(MsgData::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
-    EXPECT_CALL(mgr, subInitializeCallbak()).Times(1).WillOnce(testing::Invoke([&](){mgr3.postMsg(MsgData::TEST_DOWORK);}));
+    mgr.subscribe(Event::Initialize, std::bind(&MockTestMgr::subInitializeCallbak, &mgr));
+    EXPECT_CALL(mgr, subInitializeCallbak()).Times(1).WillOnce(testing::Invoke([&](){mgr3.postMsg(Event::TEST_DOWORK);}));
     EXPECT_CALL(mgr2, secsubInitializeCallbak()).Times(1);
-    mgr2.subscribe(MsgData::TEST_DOWORK, std::bind(&MockTestMgr::secsubInitializeCallbak, &mgr2));
-    mgr3.postMsg(MsgData::Initialize);
+    mgr2.subscribe(Event::TEST_DOWORK, std::bind(&MockTestMgr::secsubInitializeCallbak, &mgr2));
+    mgr3.postMsg(Event::Initialize);
 }
 
 TEST(SEMGRTEST, SupportPassArgument)
 {
     SEManager::clearAllSubscribe();
     MockTestMgr mgr(0), mgr2(1);
-    mgr.subscribe<int>(MsgData::Initialize, std::bind(&MockTestMgr::IntsubInitializeCallbak, &mgr, std::placeholders::_1));
+    mgr.subscribe<int>(Event::Initialize, std::bind(&MockTestMgr::IntsubInitializeCallbak, &mgr, std::placeholders::_1));
 
     EXPECT_CALL(mgr, IntsubInitializeCallbak(5)).Times(1);
-    mgr2.postMsg(MsgData::Initialize, 5);
+    mgr2.postMsg(Event::Initialize, 5);
 }
 
-//TEST(SEMGRTEST, SupportPassArgumentForTwoTimes)
-//{
-//    SEManager::clearAllSubscribe();
-//    MockTestMgr mgr(0), mgr2(1);
-//    mgr.subscribe<int>(MsgData::Initialize, std::bind(&MockTestMgr::IntsubInitializeCallbak, &mgr, std::placeholders::_1));
-//
-//    EXPECT_CALL(mgr, IntsubInitializeCallbak(5)).Times(1);
-//    EXPECT_CALL(mgr, IntsubInitializeCallbak(3)).Times(1);
-//    mgr2.postMsg(MsgData::Initialize, 5);
-//    mgr2.postMsg(MsgData::Initialize, 3);
-//}
+TEST(SEMGRTEST, SupportPassArgumentForTwoTimes)
+{
+    SEManager::clearAllSubscribe();
+    MockTestMgr mgr(0), mgr2(1);
+    mgr.subscribe<int>(Event::Initialize, std::bind(&MockTestMgr::IntsubInitializeCallbak, &mgr, std::placeholders::_1));
+
+    EXPECT_CALL(mgr, IntsubInitializeCallbak(5)).Times(1);
+    EXPECT_CALL(mgr, IntsubInitializeCallbak(3)).Times(1);
+    mgr2.postMsg(Event::Initialize, 5);
+    mgr2.postMsg(Event::Initialize, 3);
+}

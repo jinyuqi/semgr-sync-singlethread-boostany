@@ -4,22 +4,21 @@
 
 using any = boost::any;
 
-class MsgData
+class Event
 {
-
 public:
-    enum MsgId
+    enum EventId
     {
         Initialize,
         TEST_DOWORK
     };
-    MsgData(MsgId id, any value)
+    Event(EventId id, any value)
     {
         m_id = id;
         m_data = value;
     }
 
-    MsgId m_id;
+    EventId m_id;
     any m_data;
 };
 

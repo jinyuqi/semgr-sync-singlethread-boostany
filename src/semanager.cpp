@@ -1,26 +1,26 @@
 #include "semanager.h"
 #include <algorithm>
 
-std::map<MsgData::MsgId, std::map<ManagerID, std::function<void(shared_ptr<MsgData>)>>> SEManager::m_functionMaps;
+std::map<Event::EventId, std::map<ManagerID, std::function<void(Event)>>> SEManager::m_functionMaps;
 
-void SEManager::subscribe(MsgData::MsgId msg, std::function<void(shared_ptr<MsgData> msg)> func)
+void SEManager::subscribe(Event::EventId msg, std::function<void(Event msg)> func)
 {
     m_functionMaps[msg][m_mgrId] = func;
 }
 
-void SEManager::unSubscribe(MsgData::MsgId msg)
+void SEManager::unSubscribe(Event::EventId msg)
 {
     m_functionMaps[msg].erase(m_mgrId);
 }
 
-void SEManager::postMsg(MsgData::MsgId msgId, boost::any any)
+void SEManager::postMsg(Event::EventId msgId, boost::any any)
 {
-    postMsg(std::make_shared<MsgData>(msgId, any));
+    postMsg(Event(msgId, any));
 }
 
-void SEManager::postMsg(shared_ptr<MsgData> msg)
+void SEManager::postMsg(Event msg)
 {
-    auto msgId = msg->m_id;
+    auto msgId = msg.m_id;
     if (m_functionMaps.find(msgId) != m_functionMaps.end())
     {
         auto functionMgrsList = m_functionMaps[msgId];
