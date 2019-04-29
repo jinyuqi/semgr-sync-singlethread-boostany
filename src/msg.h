@@ -1,26 +1,25 @@
 #pragma once
 
-class Msg
+#include <boost/any.hpp>
+
+using any = boost::any;
+
+class MsgData
 {
+
 public:
-    virtual ~Msg(){}
     enum MsgId
     {
         Initialize,
         TEST_DOWORK
     };
-    Msg(MsgId id) : m_id(id)
+    MsgData(MsgId id, any value)
     {
-
+        m_id = id;
+        m_data = value;
     }
-    MsgId m_id;
-};
 
-template <typename T>
-class MsgData : public Msg
-{
-public:
-    MsgData(Msg::MsgId id, T value) : Msg(id), m_data(value) {}
-    T m_data;
+    MsgId m_id;
+    any m_data;
 };
 

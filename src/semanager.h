@@ -14,38 +14,32 @@ class SEManager
 {
 public:
     SEManager(int managerId = -1) : m_mgrId(managerId) {}
-    void subscribe(Msg::MsgId id, std::function<void(shared_ptr<Msg>)> func);
+    void subscribe(MsgData::MsgId id, std::function<void(shared_ptr<MsgData>)> func);
 
-    template<typename T>
-    void subscribe(Msg::MsgId id, std::function<void(T)> func)
+    template <typename T>
+    void subscribe(MsgData::MsgId id, std::function<void(T)> func)
     {
-        auto cbWrapper = [func](shared_ptr<Msg> msg)
+        auto cbWrapper = [func](shared_ptr<MsgData> data)
         {
-            auto msgData = std::dynamic_pointer_cast<MsgData<T>>(msg);
-            if (msgData != nullptr)
-            {
-                func(msgData->m_data);
-            } else
-            {
-                throw std::runtime_error("subscribe with template but throw is normal");
-            }
+            auto val = boost::any_cast<T>(data->m_data);
+            func(val);
         };
         subscribe(id, cbWrapper);
     }
 
-    void unSubscribe(Msg::MsgId msg);
-    void postMsg(Msg::MsgId msg);
-    void postMsg(shared_ptr<Msg> msg);
+    void unSubscribe(MsgData::MsgId msg);
+    void postMsg(MsgData::MsgId msg, boost::any any = boost::any());
+    void postMsg(shared_ptr<MsgData> msg);
 
     template <typename T>
-    void postMsg(Msg::MsgId msgId, T value)
+    void postMsg(MsgData::MsgId msgId, T value)
     {
-        shared_ptr<MsgData<T>> msg = std::make_shared<MsgData<T>>(msgId, value);
+        shared_ptr<MsgData> msg = std::make_shared<MsgData>(msgId, value);
         postMsg(msg);
     }
 
     static void clearAllSubscribe();
 private:
     ManagerID m_mgrId{-1};
-    static std::map<Msg::MsgId, std::map<ManagerID, std::function<void(shared_ptr<Msg>)>>> m_functionMaps;
+    static std::map<MsgData::MsgId, std::map<ManagerID, std::function<void(shared_ptr<MsgData>)>>> m_functionMaps;
 };
